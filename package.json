@@ -1,0 +1,13 @@
+{
+  "name": "fs-intern-workspace",
+  "private": true,
+  "workspaces": ["api", "web"],
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:api": "pnpm --filter ./api dev",
+    "dev:web": "pnpm --filter ./web dev",
+    "migrate": "pnpm --filter ./api migrate",
+    "seed": "pnpm --filter ./api seed",
+    "test": "pnpm --filter ./api test"
+  }
+}
