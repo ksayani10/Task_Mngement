@@ -1,18 +1,17 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev src/server.ts",
+    "test": "vitest run",
+    "dev": "ts-node-dev --project ./tsconfig.json --respawn --transpile-only ./src/server.ts",
     "migrate": "prisma migrate dev",
-    "seed": "ts-node-dev prisma/seed.ts",
-    "test": "vitest run"
+    "seed": "ts-node-dev ./prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.17.1",
+  "description": "",
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "bcryptjs": "^3.0.2",
@@ -22,17 +21,24 @@
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.11.0",
     "pino-pretty": "^13.1.1",
+    "react-router-dom": "^7.9.3",
     "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.5.2",
     "@types/supertest": "^6.0.3",
     "prisma": "^6.16.2",
     "supertest": "^7.1.4",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }

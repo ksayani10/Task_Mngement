@@ -1,7 +1,6 @@
 {
   "name": "fs-intern-workspace",
   "private": true,
-  "workspaces": ["api", "web"],
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "dev:api": "pnpm --filter ./api dev",
