@@ -1,5 +1,41 @@
 # React + TypeScript + Vite
 
+# NovaVantix — Full-Stack Intern Take-Home — <Your Name>
+
+## Stack & Architecture
+- API: Node + Express + Prisma + PostgreSQL + JWT
+- Web: React + TypeScript + Vite
+- Diagram (ASCII): API <-> Postgres ; Web -> API (/auth, /projects, /tasks)
+
+## Environment
+Create these files from the provided samples:
+
+api/.env:
+- DATABASE_URL=postgresql://postgres:<pwd>@127.0.0.1:5432/novavantix?schema=public
+- JWT_SECRET=replace-this
+- PORT=4000
+
+web/.env:
+- VITE_API_BASE=http://localhost:4000
+
+## How to run (fresh)
+1. **API**
+   ```bash
+   cd api
+   pnpm i        # or npm i / yarn
+   pnpm prisma migrate dev
+   pnpm prisma db seed
+   pnpm dev
+   # API at http://localhost:4000 ; health: GET /health
+
+## Seed Users
+
+1. **Admin: admin@demo.test**
+ / Passw0rd!
+
+2. **Members: yt@email.com**
+ /yt
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

@@ -1,3 +1,25 @@
 packages:
   - "api"
   - "web"
+
+
+---
+
+## 3) Environment variables
+Create `.env` files from the provided samples.
+
+**api/.env**
+
+
+> Samples included: `api/.env.sample`, `web/.env.sample`
+
+---
+
+## 4) How to run (fresh machine)
+### API
+```bash
+cd api
+pnpm i             # or npm i / yarn
+pnpm prisma migrate dev
+pnpm prisma db seed
+pnpm dev           # http://localhost:4000  (health: GET /health)
