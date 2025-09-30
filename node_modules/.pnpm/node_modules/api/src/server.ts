@@ -1,6 +1,8 @@
 // api/src/server.ts
 import app from "./index";
+import tasksRouter from "./routes/tasks";
 
+app.use(tasksRouter);
 console.log("Starting API...");
 const PORT = Number(process.env.PORT ?? 4000);
 app.listen(PORT, () => {

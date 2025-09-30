@@ -52,8 +52,18 @@ export const endpoints = {
   project: (id: number) => `${BASE}/projects/${id}`,
   projectTasks: (id: number) => `${BASE}/projects/${id}/tasks`,
 
-  tasks: () => `${BASE}/tasks`,
+ meTasks: () => `${BASE}/me/tasks`,
   task: (id: number) => `${BASE}/tasks/${id}`,
+  tasks: () => `${BASE}/tasks`,
+};
+
+export type TaskPayload = {
+  title: string;
+  projectId: number;
+  status?: "todo" | "in_progress" | "done";
+  dueDate?: string | null;
+  assigneeUserId?: number; // only used by admin
+  version?: number;        // if you use optimistic locking
 };
 
 // ---------- Fetch helper ----------
