@@ -1,10 +1,10 @@
 // web/src/lib/api.ts
 
-// Base URL for your API (fallback to localhost:4000 in dev)
+// ---- Base URL (falls back to localhost:4000) ----
 export const BASE: string =
-  (import.meta.env.VITE_API_BASE as string) ?? "http://localhost:4000";
+  (import.meta.env.VITE_API_BASE as string) || "http://localhost:4000";
 
-// ---------- Types ----------
+// ---- Types ----
 export type Role = "admin" | "member";
 
 export interface AuthResp {
@@ -12,14 +12,10 @@ export interface AuthResp {
   user: { id: number; name: string; email: string; role: Role };
 }
 
-// kept for older imports that referenced LoginResp
-export type LoginResp = AuthResp;
-
 export interface Project {
   id: number;
   name: string;
   description?: string | null;
-  // present on list endpoint when you include counts
   _count?: { tasks: number };
 }
 
@@ -28,46 +24,53 @@ export interface Task {
   title: string;
   projectId: number;
   status?: "todo" | "in_progress" | "done";
-  dueDate?: string | null;
-  // NOTE: correct property name is 'assignee'
   assignee?: { id: number; name: string } | null;
-  // for optimistic locking if you add it later
+  dueDate?: string | null;
   version?: number;
 }
 
-// ---------- Token helpers ----------
+// ---- add this near your other types ----
+export type TaskPayload = {
+  // use for both create & patch:
+  title?: string;
+  projectId?: number;
+  status?: "todo" | "in_progress" | "done";
+  dueDate?: string | null;
+};
+
+
+// ---- Storage helpers ----
 const TOKEN_KEY = "token";
+const ROLE_KEY = "role";
 
 export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t);
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 
-// ---------- Endpoints ----------
-// Always return a FULL URL so callers can pass directly to api()
+export const setRole = (r: Role) => localStorage.setItem(ROLE_KEY, r);
+export const getRole = (): Role | null =>
+  (localStorage.getItem(ROLE_KEY) as Role | null) ?? null;
+export const clearRole = () => localStorage.removeItem(ROLE_KEY);
+
+// ---- Endpoints (return full URLs) ----
 export const endpoints = {
+  // auth
   login: () => `${BASE}/auth/login`,
   signup: () => `${BASE}/auth/signup`,
 
+  // projects
   projects: () => `${BASE}/projects`,
   project: (id: number) => `${BASE}/projects/${id}`,
   projectTasks: (id: number) => `${BASE}/projects/${id}/tasks`,
 
- meTasks: () => `${BASE}/me/tasks`,
-  task: (id: number) => `${BASE}/tasks/${id}`,
+  // tasks (member’s own)
+  meTasks: () => `${BASE}/tasks/my`,
   tasks: () => `${BASE}/tasks`,
+  task: (id: number) => `${BASE}/tasks/${id}`,
 };
 
-export type TaskPayload = {
-  title: string;
-  projectId: number;
-  status?: "todo" | "in_progress" | "done";
-  dueDate?: string | null;
-  assigneeUserId?: number; // only used by admin
-  version?: number;        // if you use optimistic locking
-};
-
-// ---------- Fetch helper ----------
-// Pass endpoints.*() result directly here.
+// ---- Fetch helper ----
+// Pass endpoints.*() directly here. Automatically adds Authorization if token exists.
 export async function api<T>(url: string, init: RequestInit = {}): Promise<T> {
   const token = getToken();
 
@@ -83,7 +86,6 @@ export async function api<T>(url: string, init: RequestInit = {}): Promise<T> {
   const text = await res.text();
 
   if (!res.ok) {
-    // Try to surface server JSON error; otherwise show raw text/status
     try {
       const j = text ? JSON.parse(text) : null;
       throw new Error(j?.error ?? res.statusText);
@@ -92,6 +94,6 @@ export async function api<T>(url: string, init: RequestInit = {}): Promise<T> {
     }
   }
 
-  // some endpoints may return 204 No Content
+  // some endpoints may return 204
   return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
 }

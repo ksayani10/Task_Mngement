@@ -1,56 +1,67 @@
-// web/src/components/LoginForm.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const BASE = import.meta.env.VITE_API_BASE as string;
+import { api, endpoints, setToken, setRole, type AuthResp } from "../lib/api";
 
 export default function LoginForm() {
   const nav = useNavigate();
+
+  // Demo defaults; change as you like
   const [email, setEmail] = useState("admin@demo.test");
   const [password, setPassword] = useState("Passw0rd!");
   const [err, setErr] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setErr("");
+  async function submit(e?: React.FormEvent) {
+    e?.preventDefault();
     try {
-      const res = await fetch(`${BASE}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      setErr("");
+      setLoading(true);
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || `Login failed (${res.status})`);
+      const data = await api<AuthResp>(
+        endpoints.login(),
+        { method: "POST", body: JSON.stringify({ email, password }) }
+      );
+
+      // Persist auth
+      setToken(data.token);
+      setRole(data.user.role);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Route by role
+      if (data.user.role === "admin") {
+        nav("/projects", { replace: true });
+      } else {
+        nav("/my-tasks", { replace: true });
       }
-
-      const data = await res.json() as { token: string; user: { role: "admin" | "member" } };
-      localStorage.setItem("token", data.token);
-
-      // redirect (admin → /projects, member → first project page or /projects)
-      nav(data.user.role === "admin" ? "/projects" : "/projects", { replace: true });
     } catch (e: any) {
-      setErr(e.message ?? "Login failed");
+      setErr(e.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ maxWidth: 480, margin: "48px auto" }}>
+    <form onSubmit={submit} style={{ maxWidth: 520, margin: "48px auto" }}>
+      <h1>Sign in</h1>
+
       <input
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={{ width: "100%", marginBottom: 8, padding: 8 }}
+        style={{ width: "100%", margin: "6px 0" }}
       />
       <input
-        type="password"
         placeholder="Password"
+        type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", marginBottom: 12, padding: 8 }}
+        style={{ width: "100%", margin: "6px 0" }}
       />
-      <button type="submit">Sign in</button>
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Signing in…" : "Sign in"}
+      </button>
+
       {err && <div style={{ color: "crimson", marginTop: 8 }}>{err}</div>}
     </form>
   );
