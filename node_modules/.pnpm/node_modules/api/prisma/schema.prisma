@@ -52,6 +52,7 @@ model Task {
 
   @@index([projectId])
   @@index([assigneeId])
+   @@unique([id, version], name: "task_id_version")
 }
 
 enum Role {
